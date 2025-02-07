@@ -1,23 +1,24 @@
 package com.cibicom.views;
 
-import com.cibicom.views.helloworld.HelloWorldView;
+import com.cibicom.views.application.ApplicationsView;
+import com.cibicom.views.device.profile.DeviceProfilesView;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
-import com.vaadin.flow.component.html.Footer;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Header;
+import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.Scroller;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
-import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
+import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import org.vaadin.lineawesome.LineAwesomeIcon;
 
 /**
  * The main view is a top-level placeholder for other views.
  */
-public class MainLayout extends AppLayout {
+public class MainLayout extends AppLayout implements AfterNavigationObserver {
 
     private H2 viewTitle;
 
@@ -40,7 +41,12 @@ public class MainLayout extends AppLayout {
     private void addDrawerContent() {
         H1 appName = new H1("csiot");
         appName.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
-        Header header = new Header(appName);
+
+        Image image = new Image("icons/cibi_iot_logo.png", "placeholder app icon");
+        image.setWidth("223px");
+        image.setHeight("59px");
+
+        Header header = new Header(image);
 
         Scroller scroller = new Scroller(createNavigation());
 
@@ -50,7 +56,8 @@ public class MainLayout extends AppLayout {
     private SideNav createNavigation() {
         SideNav nav = new SideNav();
 
-        nav.addItem(new SideNavItem("Hello World", HelloWorldView.class, LineAwesomeIcon.GLOBE_SOLID.create()));
+        nav.addItem(new SideNavItem("Applications", ApplicationsView.class, VaadinIcon.SQUARE_SHADOW.create()));
+        nav.addItem(new SideNavItem("Device Profiles", DeviceProfilesView.class, VaadinIcon.FORM.create()));
 
         return nav;
     }
@@ -68,7 +75,13 @@ public class MainLayout extends AppLayout {
     }
 
     private String getCurrentPageTitle() {
-        PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
-        return title == null ? "" : title.value();
+        String title = (String) VaadinSession.getCurrent().getAttribute("title");
+        return title == null ? "" : title;
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent afterNavigationEvent) {
+        super.afterNavigation();
+        viewTitle.setText(getCurrentPageTitle());
     }
 }
